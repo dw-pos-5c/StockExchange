@@ -70,4 +70,17 @@ public class StockService
 
         return transaction;
     }
+
+    internal List<UserShare> GetUserShares(string username)
+    {
+        var user = db.Users.SingleOrDefault(x => x.Name.Equals(username));
+        if (user == null) return null;
+        return db.UserShares.Where(x => x?.User?.Equals(user) ?? false).ToList();
+    }
+
+    public double GetCash(string username)
+    {
+        var user = db.Users.SingleOrDefault(x => x.Name == username);
+        return user?.Cash ?? 0;
+    }
 }

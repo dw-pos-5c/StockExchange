@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import {SignalRService} from "./modules/core/signal-r.service";
 import {StockDataService} from "./modules/core/stock-data.service";
+import {Observable} from "rxjs";
+import ShareTickDto from "../models/ShareTickDto";
 
 @Component({
   selector: 'app-root',
@@ -12,8 +14,19 @@ export class AppComponent {
 
   username = '';
 
-  constructor(private signalr: SignalRService, public dataService: StockDataService) {
+  newStockData: Observable<ShareTickDto[]>;
 
+  userStockData = [];
+  currentStockData: ShareTickDto[] = [];
+  selectedShare!: ShareTickDto;
+
+  constructor(private signalr: SignalRService, public dataService: StockDataService) {
+    this.newStockData = signalr.onNewStocks();
+
+    this.newStockData.subscribe(x => {
+      this.currentStockData = x;
+      this.selectedShare = x[0];
+    });
   }
 
   getConnectedStatus(): boolean {
@@ -21,7 +34,7 @@ export class AppComponent {
   }
 
   connect(): void {
-    this.signalr.connect();
+    this.signalr.connect(this.username);
   }
 
   disconnect(): void {

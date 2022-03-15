@@ -1,8 +1,50 @@
-<h1>Stock Exchange</h1>
-<button (click)="disconnect()" *ngIf="getConnectedStatus()">Disconnect</button>
-<button (click)="connect()" *ngIf="!getConnectedStatus()">Connect</button>
-<span *ngIf="getConnectedStatus()">Connected clients: {{ dataService.connectedUsers }}</span>
-<br>
-<label for="username">Username</label>
-<input [(ngModel)]="username" type="text" id="username">
+<div class="container">
+  <h1>Stock Exchange</h1>
+  <button (click)="disconnect()" *ngIf="getConnectedStatus()" class="btn btn-primary bg-danger">Disconnect</button>
+  <button (click)="connect()" *ngIf="!getConnectedStatus()" class="btn btn-primary bg-success">Connect</button>
+  <span *ngIf="getConnectedStatus()">Connected clients: {{ dataService.connectedUsers }}</span>
+  <br>
+  <label for="username">Username</label>
+  <input [(ngModel)]="username" type="text" id="username" [readOnly]="getConnectedStatus()">
+  <span>Cash: {{ dataService.userCash }}€</span>
+  <br>
+  <div *ngIf="dataService.connectedUsers">
+    <label for="shares">Share</label>
+    <select [(ngModel)]="selectedShare" name="shares" id="shares">
+      <option *ngFor="let stock of currentStockData" [value]="stock">{{ stock.name }}</option>
+    </select>
+    <input type="number">
+    <button>Buy</button>
+    <button>Sell</button>
+    <br>
+    <div class="row" style="background: lightgray">
+      <div class="col-lg-3">
+        <table class="table">
+          <tr>
+            <th>Share</th>
+            <th>Amount</th>
+          </tr>
+          <tr *ngFor="let stock of dataService.userShares">
+            <td>{{ stock.shareName }}</td>
+            <td>{{ stock.amount }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-lg-3">
+        <table class="table">
+          <tr>
+            <th>Share</th>
+            <th>Price</th>
+          </tr>
+          <tr *ngFor="let stock of currentStockData">
+            <td>{{ stock.name }}</td>
+            <td>{{ stock.val }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-lg-6">
 
+      </div>
+    </div>
+  </div>
+</div>

@@ -42,4 +42,17 @@ public class StockHub: Hub
         TransactionDto? transaction = new TransactionDto().CopyPropertiesFrom(dto);
         Clients.All.SendAsync("transactionReceived", transaction);
     }
+
+    public double GetCash(string username) {
+        return stockService.GetCash(username);
+    }
+
+    public List<DepotDto> GetUserShares(string username) {
+        if (!username.Any()) return new List<DepotDto>();
+        return stockService.GetUserShares(username).Select(x => new DepotDto
+        {
+            Amount = x.Amount,
+            ShareName = x?.Share?.Name ?? "",
+        }).ToList();
+    }
 }

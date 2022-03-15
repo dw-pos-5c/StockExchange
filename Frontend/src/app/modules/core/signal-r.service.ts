@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import {Observable, Subject} from "rxjs";
 import ShareTickDto from "../../../models/ShareTickDto";
 import {StockDataService} from "./stock-data.service";
@@ -12,7 +12,7 @@ export class SignalRService {
 
   public connected = false;
 
-  constructor(dataService: StockDataService) {
+  constructor(private dataService: StockDataService) {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl('http://localhost:5000/stock')
       .withAutomaticReconnect()
@@ -24,16 +24,25 @@ export class SignalRService {
     });
   }
 
-  public connect(): void {
+  private username = '';
+  public connect(username: string): void {
     this.hubConnection.start()
-      .then(() => this.connected = true)
+      .then(async () => {
+        this.connected = true;
+        this.dataService.userCash = await this.hubConnection.invoke('GetCash', username);
+        this.dataService.userShares = await this.hubConnection.invoke('GetUserShares', username);
+      })
       .catch((error) => console.log(error));
+    this.username = username;
+
   }
 
   public disconnect(): void {
     this.hubConnection.stop()
       .then(() => this.connected = false)
       .catch((error) => console.log(error));
+
+    this.dataService.userCash = 0;
   }
 
   public onNewStocks(): Observable<ShareTickDto[]> {
