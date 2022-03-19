@@ -6,18 +6,20 @@ import { AppComponent } from './app.component';
 import {CoreModule} from "./modules/core/core.module";
 import {SharedModule} from "./modules/shared/shared.module";
 import {FormsModule} from "@angular/forms";
+import {NgChartsModule} from "ng2-charts";
 
 @NgModule({
   declarations: [
     AppComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    CoreModule,
-    SharedModule,
-    FormsModule,
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        CoreModule,
+        SharedModule,
+        FormsModule,
+        NgChartsModule,
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

@@ -13,11 +13,11 @@
     <select [(ngModel)]="selectedShare" name="shares" id="shares">
       <option *ngFor="let stock of currentStockData" [value]="stock">{{ stock.name }}</option>
     </select>
-    <input type="number">
-    <button>Buy</button>
-    <button>Sell</button>
+    <input type="number" *ngIf="dataService.userCash > 0">
+    <button *ngIf="dataService.userCash > 0">Buy</button>
+    <button *ngIf="dataService.userCash > 0">Sell</button>
     <br>
-    <div class="row" style="background: lightgray">
+    <div class="row" style="background: lightgray; width: 100%">
       <div class="col-lg-3">
         <table class="table">
           <tr>
@@ -43,7 +43,10 @@
         </table>
       </div>
       <div class="col-lg-6">
-
+        <canvas baseChart width="300" height="100"
+                [data]="chartData"
+                [type]="'line'">
+        </canvas>
       </div>
     </div>
   </div>
