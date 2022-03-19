@@ -6,16 +6,16 @@
   <br>
   <label for="username">Username</label>
   <input [(ngModel)]="username" type="text" id="username" [readOnly]="getConnectedStatus()">
-  <span>Cash: {{ dataService.userCash }}€</span>
+  <span>Cash: {{ dataService.userCash.toFixed(2) }}€</span>
   <br>
   <div *ngIf="dataService.connectedUsers">
     <label for="shares">Share</label>
     <select [(ngModel)]="selectedShare" name="shares" id="shares">
-      <option *ngFor="let stock of currentStockData" [value]="stock">{{ stock.name }}</option>
+      <option *ngFor="let stock of currentStockData" [value]="stock.name">{{ stock.name }}</option>
     </select>
-    <input type="number" *ngIf="dataService.userCash > 0">
-    <button *ngIf="dataService.userCash > 0">Buy</button>
-    <button *ngIf="dataService.userCash > 0">Sell</button>
+    <input [(ngModel)]="shareCount" type="number" *ngIf="dataService.userCash > 0">
+    <button (click)="buy()" *ngIf="dataService.userCash > 0">Buy</button>
+    <button (click)="sell()" *ngIf="dataService.userCash > 0">Sell</button>
     <br>
     <div class="row" style="background: lightgray; width: 100%">
       <div class="col-lg-3">
@@ -49,5 +49,9 @@
         </canvas>
       </div>
     </div>
+    <span  *ngFor="let transaction of dataService.transactions.reverse()">
+      <span>{{ getStockInfo(transaction) }}</span>
+      <p>{{ getTransactionInfo(transaction) }}</p>
+    </span>
   </div>
 </div>

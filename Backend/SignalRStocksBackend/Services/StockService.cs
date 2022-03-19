@@ -18,7 +18,7 @@ public class StockService
         var user = db.Users.SingleOrDefault(x => x.Name.Equals(username));
         if (share == null || user == null) return null;
 
-        var transactionPrice = amount * share.StartPrice;
+        var transactionPrice = amount * share.Price;
 
         var userShare = db.UserShares.SingleOrDefault(x => x.User.Equals(user) && x.Share.Equals(share));
 
@@ -63,6 +63,7 @@ public class StockService
             User = user,
             Amount = amount,
             IsUserBuy = isBuy,
+            UnitPrice = share.Price,
             Timestamp = DateTime.Now,
         };
         db.Transactions.Add(transaction);

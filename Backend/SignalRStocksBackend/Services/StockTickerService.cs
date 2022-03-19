@@ -125,7 +125,14 @@ public class StockTickerService
                     Name = name,
                     Val = y
                 });
+
+                var share = db.Shares.SingleOrDefault(x => x.Name.Equals(name));
+                if (share != null)
+                {
+                    share.Price = y;
+                }
             }
+            db.SaveChanges();
             Console.WriteLine($"StockService::SendNewStocks via Hub: {stocks.Count} stocks");
             
             

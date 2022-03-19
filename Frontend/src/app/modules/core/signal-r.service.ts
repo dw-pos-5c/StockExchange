@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-import {Observable, Subject} from "rxjs";
+import {Observable, share, Subject} from "rxjs";
 import ShareTickDto from "../../../models/ShareTickDto";
 import {StockDataService} from "./stock-data.service";
 
@@ -22,6 +22,10 @@ export class SignalRService {
       console.log('newConnection', val);
       dataService.connectedUsers = val
     });
+
+    this.hubConnection.on('transactionReceived', (transaction) => {
+      dataService.transactions.push(transaction);
+    });
   }
 
   private username = '';
@@ -29,8 +33,7 @@ export class SignalRService {
     this.hubConnection.start()
       .then(async () => {
         this.connected = true;
-        this.dataService.userCash = await this.hubConnection.invoke('GetCash', username);
-        this.dataService.userShares = await this.hubConnection.invoke('GetUserShares', username);
+        await this.update();
       })
       .catch((error) => console.log(error));
     this.username = username;
@@ -48,5 +51,26 @@ export class SignalRService {
   public onNewStocks(): Observable<ShareTickDto[]> {
     this.hubConnection.on('newStocks', (val) => this.subject.next(val))
     return this.subject.asObservable();
+  }
+
+  async buy(username: string, shareName: string, amount: number) {
+    const success = await this.hubConnection.invoke('BuyShare', username, shareName, amount, true);
+    if (!success) console.log('Failed to buy Share');
+    else {
+      this.update();
+    }
+  }
+
+  async sell(username: string, shareName: string, amount: number) {
+    const success = this.hubConnection.invoke('BuyShare', username, shareName, amount, false);
+    if (!success) console.log('Failed to sell Share');
+    else {
+      this.update();
+    }
+  }
+
+  async update() {
+    this.dataService.userCash = await this.hubConnection.invoke('GetCash', this.username);
+    this.dataService.userShares = await this.hubConnection.invoke('GetUserShares', this.username);
   }
 }

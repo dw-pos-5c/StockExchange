@@ -29,19 +29,24 @@ public class StockHub: Hub
         return base.OnDisconnectedAsync(exception);
     }
 
-    public void BuyShare(string username, string shareName, int amount)
+    public bool BuyShare(string username, string shareName, int amount, bool isBuy)
     {
-        var dto = stockService.AddTransaction(username, shareName, amount, true);
-        TransactionDto? transaction = new TransactionDto().CopyPropertiesFrom(dto);
+        var dto = stockService.AddTransaction(username, shareName, amount, isBuy);
+        if (dto == null) return false;
+        TransactionDto? transaction = new TransactionDto
+        {
+            Amount = amount,
+            IsUserBuy = isBuy,
+            Price = dto.UnitPrice,
+            ShareName = shareName,
+            Username = username,
+            UnitsInStockNow = dto?.Share?.UnitsInStock ?? 0,
+            Timestamp = dto?.Timestamp.ToLongTimeString() ?? "",
+        };
         Clients.All.SendAsync("transactionReceived", transaction);
+        return true;
     }
 
-    public void SellShare(string username, string shareName, int amount)
-    {
-        var dto = stockService.AddTransaction(username, shareName, amount, false);
-        TransactionDto? transaction = new TransactionDto().CopyPropertiesFrom(dto);
-        Clients.All.SendAsync("transactionReceived", transaction);
-    }
 
     public double GetCash(string username) {
         return stockService.GetCash(username);

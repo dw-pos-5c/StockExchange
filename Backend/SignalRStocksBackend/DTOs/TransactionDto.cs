@@ -8,4 +8,5 @@ public class TransactionDto
     public double Price { get; set; }
     public int UnitsInStockNow { get; set; }
     public bool IsUserBuy { get; set; }
+    public string Timestamp { get; set; }
 }

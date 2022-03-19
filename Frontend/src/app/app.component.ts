@@ -5,6 +5,7 @@ import {Observable} from "rxjs";
 import ShareTickDto from "../models/ShareTickDto";
 import {BaseChartDirective} from "ng2-charts";
 import {ChartConfiguration} from "chart.js";
+import TransactionDto from "../models/TransactionDto";
 
 
 @Component({
@@ -15,13 +16,14 @@ import {ChartConfiguration} from "chart.js";
 export class AppComponent {
   title = 'StockExchange';
 
-  username = '';
+  username = 'Hansi';
 
   newStockData: Observable<ShareTickDto[]>;
 
   userStockData = [];
   currentStockData: ShareTickDto[] = [];
-  selectedShare!: ShareTickDto;
+  selectedShare!: string;
+  shareCount: number = 0;
 
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   chartData: ChartConfiguration['data'] = {
@@ -33,8 +35,10 @@ export class AppComponent {
     this.newStockData = signalr.onNewStocks();
 
     this.newStockData.subscribe(x => {
-      this.currentStockData = x;
-      this.selectedShare = x[0];
+      if (this.currentStockData.length == 0) {
+        this.currentStockData = x;
+        this.selectedShare = x[0].name;
+      }
 
       let index = 0;
       this.chartData.labels?.push(new Date().toLocaleString('en', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}));
@@ -66,4 +70,25 @@ export class AppComponent {
     this.signalr.disconnect();
   }
 
+  buy(): void {
+    const share = this.selectedShare;
+    const amount = this.shareCount;
+
+    this.signalr.buy(this.username, share, amount);
+  }
+
+  sell(): void {
+    const share = this.selectedShare;
+    const amount = this.shareCount;
+
+    this.signalr.sell(this.username, share, amount);
+  }
+
+  getTransactionInfo(transaction: TransactionDto): string {
+    return `${transaction.timestamp}: ${transaction.shareName} stock: ${transaction.unitsInStockNow}`;
+  }
+
+  getStockInfo(transaction: TransactionDto): string {
+    return `${transaction.timestamp}: ${transaction.username} bought ${transaction.amount}x${transaction.shareName} a ${transaction.price.toFixed(2)}`;
+  }
 }
